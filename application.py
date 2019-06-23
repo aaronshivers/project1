@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from flask import Flask, session, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
@@ -7,6 +8,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 import requests
 
 app = Flask(__name__)
+load_dotenv()
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -24,6 +26,7 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
 def index():
-  res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "key", "isbns": "9781632168146"})
+  url = "https://www.goodreads.com/book/review_counts.json"
+  res = requests.get(url, params={"key": os.getenv('GOODREADS_KEY'), "isbns": "9781632168146"})
   json = res.json()
   return jsonify(json)
