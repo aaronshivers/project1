@@ -15,6 +15,7 @@ flask-marshmallow = "*"
 flask-sqlalchemy = "*"
 marshmallow-sqlalchemy = "*"
 flask-talisman = "*"
+gunicorn = "*"
 
 [dev-packages]
 
