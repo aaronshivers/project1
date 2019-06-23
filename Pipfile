@@ -14,6 +14,7 @@ python-dotenv = "*"
 flask-marshmallow = "*"
 flask-sqlalchemy = "*"
 marshmallow-sqlalchemy = "*"
+flask-talisman = "*"
 
 [dev-packages]
 

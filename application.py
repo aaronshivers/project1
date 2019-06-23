@@ -1,7 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, session, jsonify, request
+from flask import Flask, session, jsonify, request, redirect, make_response, after_this_request
+from flask_talisman import Talisman
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
@@ -10,6 +11,7 @@ from flask_marshmallow import Marshmallow
 import requests
 
 app = Flask(__name__)
+Talisman(app)
 # load_dotenv()
 
 # Check for environment variable
@@ -59,7 +61,6 @@ def index():
 @app.route('/users', methods=['POST', 'GET'])
 def users():
   if request.method == 'POST':
-
     name = request.json['name']
     password = request.json['password']
     new_user = User(name, password)
@@ -68,11 +69,42 @@ def users():
       db.session.add(new_user)
       db.session.commit()
       return user_schema.jsonify(new_user)
-    except Exception as e:
-      print(e)
+
+    except:
       return 'The user could not be added.'
 
   else:
     all_users = User.query.all()
     result = users_schema.dump(all_users)
     return jsonify(result.data)
+
+@app.route('/secret')
+def secret():
+  name = request.cookies.get('is_logged_in')
+  return '<h1>welcome to the secret page</h1>'
+
+@app.route('/test')
+def test():
+  @after_this_request
+  def add_header(response):
+    response.headers['x-auth-token'] = 'hey there'
+    return response
+  return 'test successful'
+
+@app.route('/login', methods=['POST'])
+def login():
+
+  name = request.json['name']
+  password = request.json['password']
+
+  try:
+    user = User.query.filter_by(name=name).first()
+
+    if user.name == name and user.password == password:
+      return redirect('/')
+
+    else:
+      return 'Invalid Login'
+
+  except:
+    return 'Invalid Login'
